@@ -1,19 +1,17 @@
 FROM centos:centos7
 
-MAINTAINER John Gasper <jtgasper3@gmail.com>
+MAINTAINER Daniel Carleton <spieden@exaptic.com>
 
 RUN yum -y update \
     && yum -y install wget \
     && wget http://download.opensuse.org/repositories/security://shibboleth/CentOS_7/security:shibboleth.repo -P /etc/yum.repos.d \
-    && yum -y install httpd shibboleth.x86_64 \
-    && yum -y clean all
+    && yum -y install httpd shibboleth.x86_64 mod_ssl python-setuptools\
+    && yum -y clean all\
+    && easy_install supervisor
 
- RUN mkdir /var/run/lock \
- 	&& mkdir /var/lock/subsys/ \
-    && chmod +x /etc/shibboleth/shibd-redhat
-
-COPY httpd-foreground /usr/local/bin/
+COPY supervisord.conf /etc/
 
 EXPOSE 80 443
 
-CMD ["httpd-foreground"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
+
